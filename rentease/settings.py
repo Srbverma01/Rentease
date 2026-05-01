@@ -49,7 +49,10 @@ if not SECRET_KEY:
     else:
         raise ImproperlyConfigured('DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is false.')
 
-APP_URL = get_env('APP_URL', 'http://127.0.0.1:8000')
+render_hostname = get_env('RENDER_EXTERNAL_HOSTNAME')
+default_app_url = f'https://{render_hostname}' if render_hostname else 'http://127.0.0.1:8000'
+
+APP_URL = get_env('APP_URL', default_app_url)
 FRONTEND_URL = get_env('FRONTEND_URL', APP_URL)
 
 default_allowed_hosts = ['127.0.0.1', 'localhost']
