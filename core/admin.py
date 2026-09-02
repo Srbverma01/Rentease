@@ -4,8 +4,9 @@ from .models import Cart, CartItem, Order, OrderItem, Product, Rental
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "price"]
-    list_filter = ["price"]
+    list_display = ["id", "name", "category", "price", "deposit", "stock", "condition", "featured"]
+    list_filter = ["category", "condition", "featured"]
+    search_fields = ["name", "description"]
 
 
 class CartItemInline(admin.TabularInline):
@@ -31,9 +32,9 @@ class OrderItemInline(admin.TabularInline):
 
 class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
-    list_display = ["id", "user", "status", "total_price", "created_at"]
-    list_filter = ["status", "created_at"]
-    search_fields = ["user__username"]
+    list_display = ["id", "user", "status", "payment_status", "total_price", "city", "created_at"]
+    list_filter = ["status", "payment_status", "city", "created_at"]
+    search_fields = ["user__username", "customer_name", "phone", "payment_reference"]
 
 
 admin.site.register(Product, ProductAdmin)

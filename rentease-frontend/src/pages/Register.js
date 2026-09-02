@@ -28,7 +28,6 @@ function Register() {
     try {
       await API.post("/api/register/", form);
 
-      alert("Account created successfully");
       navigate("/login");
     } catch (err) {
       console.error(err.response?.data);

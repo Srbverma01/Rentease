@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
+import renteaseLogo from "../assets/rentease-logo.png";
 import { clearAuthTokens, hasUsableSession } from "../auth";
 
 const guestLinks = [{ label: "Create account", to: "/register", className: "nav-chip" }];
@@ -14,6 +15,8 @@ const authPages = ["/login", "/register", "/forgot-password"];
 
 const Navbar = ({ cartCount = 0 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [locationLabel, setLocationLabel] = useState("Set location");
+  const [isLocating, setIsLocating] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isLoggedIn = hasUsableSession();
@@ -26,20 +29,92 @@ const Navbar = ({ cartCount = 0 }) => {
 
   const handleLogout = () => {
     clearAuthTokens();
+    window.dispatchEvent(new Event("rentease-auth-changed"));
     closeMenu();
     navigate("/login", { replace: true });
+  };
+
+  const formatCoordinates = ({ latitude, longitude }) =>
+    `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
+
+  const fetchLocationName = async ({ latitude, longitude }) => {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+    );
+
+    if (!response.ok) {
+      throw new Error("Location lookup failed");
+    }
+
+    const data = await response.json();
+    const address = data.address || {};
+    return (
+      address.city ||
+      address.town ||
+      address.village ||
+      address.suburb ||
+      address.county ||
+      data.display_name?.split(",")[0]
+    );
+  };
+
+  const handleLocationClick = () => {
+    if (!navigator.geolocation || isLocating) {
+      setLocationLabel(navigator.geolocation ? locationLabel : "Location unavailable");
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationLabel("Detecting...");
+
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          const placeName = await fetchLocationName(coords);
+          setLocationLabel(placeName || formatCoordinates(coords));
+        } catch (error) {
+          console.error("Location name lookup failed:", error);
+          setLocationLabel(formatCoordinates(coords));
+        } finally {
+          setIsLocating(false);
+        }
+      },
+      (error) => {
+        console.error("Location permission failed:", error);
+        setLocationLabel(error.code === error.PERMISSION_DENIED ? "Permission denied" : "Try again");
+        setIsLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 300000,
+        timeout: 10000,
+      }
+    );
   };
 
   return (
     <header className="site-navbar">
       <div className="nav-inner">
-        <Link to={isLoggedIn ? "/home" : "/login"} className="brand-lockup" onClick={closeMenu}>
-          <span className="brand-mark">R</span>
-          <span className="brand-copy">
-            <span className="brand-title">RentEase</span>
-            <span className="brand-tagline">Curated monthly living</span>
-          </span>
-        </Link>
+        <div className="brand-area">
+          <Link to={isLoggedIn ? "/home" : "/login"} className="brand-lockup" onClick={closeMenu}>
+            <span className="brand-mark">
+              <img src={renteaseLogo} alt="RentEase logo" />
+            </span>
+            <span className="brand-copy">
+              <span className="brand-title">RentEase</span>
+              <span className="brand-tagline">Curated monthly living</span>
+            </span>
+          </Link>
+          <button
+            className="location-button"
+            type="button"
+            onClick={handleLocationClick}
+            disabled={isLocating}
+          >
+            <span className="location-pin" aria-hidden="true" />
+            {locationLabel}
+          </button>
+        </div>
 
         {isLoggedIn && !isAuthPage ? (
           <label className="nav-search" aria-label="Search products">

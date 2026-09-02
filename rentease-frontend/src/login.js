@@ -25,11 +25,11 @@ function Login() {
 
       localStorage.setItem("access", res.data.access);
       localStorage.setItem("refresh", res.data.refresh);
+      window.dispatchEvent(new Event("rentease-auth-changed"));
 
-      alert("Login Successful 🔥");
+      navigate("/home");
     } catch (err) {
       console.error("Login error:", err.response?.data);
-      alert(err.response?.data?.detail || "Invalid Credentials ❌");
     }
   };
 

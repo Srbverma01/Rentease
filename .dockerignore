@@ -7,3 +7,27 @@ staticfiles/
 rentease-frontend/build/
 rentease-frontend/node_modules/
 *.log
+
+# Local database — must never reach the image (contains real user password hashes)
+db.sqlite3
+db.sqlite3.*
+*.sqlite3
+*.bak
+
+# Locally uploaded media; production media belongs in object storage, not the image
+media/
+products/
+
+# 14 MB of saved reference HTML pages, not used at runtime
+Templates/
+
+# Git and editor metadata
+.git/
+.gitignore
+.gitattributes
+.vscode/
+.idea/
+
+# Project docs — not needed at runtime
+CODE_REVIEW.md
+README.md

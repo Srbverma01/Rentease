@@ -7,9 +7,8 @@ function Register() {
   const handleRegister = async () => {
     try {
       await API.post("register/", form);
-      alert("User Registered ✅");
     } catch (err) {
-      alert("Error ❌");
+      console.error("Registration error:", err.response?.data || err.message);
     }
   };
 

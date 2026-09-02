@@ -34,8 +34,8 @@ function Login() {
 
       localStorage.setItem("access", res.data.access);
       localStorage.setItem("refresh", res.data.refresh);
+      window.dispatchEvent(new Event("rentease-auth-changed"));
 
-      alert("Login successful");
       navigate(location.state?.from?.pathname || "/home", { replace: true });
     } catch (err) {
       console.error("Login error:", err.response?.data);

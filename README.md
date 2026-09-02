@@ -2,6 +2,15 @@
 
 RentEase is a Django + React rental catalog application with JWT auth, profile management, checkout, order history, and password reset flows.
 
+## Current feature set
+
+- Product catalog with category, description, stock, deposit, condition, delivery time, featured flag, and product images.
+- Authenticated, backend-persisted cart that survives refreshes and follows the user account.
+- Checkout stores customer delivery details, shipping charge, refundable deposit, payment method, payment status, and payment reference.
+- Mock online payment statuses for demo use, plus cash/manual pending payments that staff can mark paid later.
+- Staff profile tools for product metadata, price/stock management, and order/payment status updates.
+- Order history and rental history for customers.
+
 ## Local setup
 
 1. Create and activate a Python virtual environment.
@@ -25,6 +34,8 @@ The React dev server proxies API and media requests to Django. When you build th
 7. Run `python manage.py migrate --noinput`.
 8. Serve Django behind HTTPS with a production web server or platform runtime.
 
+Payment is currently implemented as a demo/mock flow. Before accepting real payments, set a real provider in your environment, add provider-side order creation/webhook verification, and only mark orders paid after a verified callback.
+
 ## Docker deployment
 
 This repo now includes a production Docker setup that builds the React frontend and serves it through Django.
@@ -32,14 +43,17 @@ This repo now includes a production Docker setup that builds the React frontend 
 1. Build the image from the project root:
    `docker build -t rentease .`
 2. Start the container with your production environment variables:
-   `docker run -p 8000:8000 --env-file .env rentease`
+   `docker run -p 8000:10000 --env-file .env rentease`
 3. Open the app on the public URL you configured in `APP_URL` and `FRONTEND_URL`.
 
-The container startup automatically runs:
+On Render, `docker/predeploy.sh` runs before the web service starts:
 
 - `python manage.py migrate --noinput`
 - `python manage.py collectstatic --noinput`
-- `gunicorn rentease.wsgi:application --bind 0.0.0.0:8000`
+
+The container then starts Gunicorn with:
+
+- `gunicorn rentease.wsgi:application --bind 0.0.0.0:${PORT:-10000}`
 
 ### Recommended deployment settings
 

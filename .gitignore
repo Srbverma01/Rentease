@@ -11,6 +11,7 @@ env/
 # Django/local data
 db.sqlite3
 *.sqlite3
+*.bak
 media/
 staticfiles/
 Templates/
@@ -35,3 +36,8 @@ rentease-frontend/node_modules/
 Thumbs.db
 .vscode/
 .idea/
+
+# Internal security review — keep out of the public repo.
+# It lists unpatched weaknesses with file:line references, which is a
+# ready-made roadmap for anyone who finds the repo. Keep it local.
+CODE_REVIEW.md
