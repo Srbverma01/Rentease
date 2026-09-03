@@ -7,12 +7,14 @@ services:
     # It runs here rather than as `preDeployCommand` because pre-deploy commands
     # are not available on Render's free instance types — if migrations live there,
     # they silently never run and the app boots against an empty database.
-    dockerCommand: '/bin/sh -c "./docker/predeploy.sh && gunicorn --bind 0.0.0.0:${PORT:-10000} rentease.wsgi:application"'
+    dockerCommand: '/bin/sh -c "./docker/predeploy.sh && exec gunicorn --bind 0.0.0.0:${PORT:-10000} rentease.wsgi:application"'
     healthCheckPath: /
     envVars:
       - key: PORT
         value: "10000"
       - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_SECURE_SSL_REDIRECT
         value: "False"
       - key: DJANGO_SECRET_KEY
         generateValue: true
@@ -22,6 +24,10 @@ services:
           property: connectionString
       - key: DJANGO_SERVE_MEDIA
         value: "True"
+      - key: DJANGO_EMAIL_BACKEND
+        value: django.core.mail.backends.console.EmailBackend
+      - key: PAYMENT_PROVIDER
+        value: mock
 
 databases:
   - name: rentease-db

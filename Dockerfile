@@ -29,4 +29,4 @@ RUN chmod +x docker/entrypoint.sh docker/predeploy.sh
 EXPOSE 10000
 
 ENTRYPOINT ["./docker/entrypoint.sh"]
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-10000} rentease.wsgi:application"]
+CMD ["sh", "-c", "./docker/predeploy.sh && exec gunicorn --bind 0.0.0.0:${PORT:-10000} rentease.wsgi:application"]
