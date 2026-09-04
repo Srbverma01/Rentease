@@ -8,6 +8,7 @@ services:
     # are not available on Render's free instance types — if migrations live there,
     # they silently never run and the app boots against an empty database.
     #dockerCommand: '/bin/sh -c "./docker/predeploy.sh && exec gunicorn --bind 0.0.0.0:${PORT:-10000} rentease.wsgi:application"'
+     "Remove broken dockerCommand override"
     healthCheckPath: /
     envVars:
       - key: PORT
